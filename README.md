@@ -14,5 +14,7 @@ DB_PASSWORD=
 
 **you need to seeding for login and test categories.` php artisan db:seed `**
 
+**After seeding, you can login with `email => chitsanthu208@gmail.com password => password `**
+
 
  
