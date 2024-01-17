@@ -1,5 +1,6 @@
 composer.phar
 /vendor/
 
-
+.env
 /node_modules
+
