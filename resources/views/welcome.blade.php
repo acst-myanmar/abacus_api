@@ -15,7 +15,7 @@
     <input type="number" id="line">
     <button onclick="setup(23)">speek</button>
     <button onclick="setupLittleFriend(10)">little friend</button>
-    <button onclick="setupBigFriend(5)">big friend</button>
+    <button onclick="setupBigFriend(5)">big friend</button> sadfsf
 
     <script>
         function setup(line) {
