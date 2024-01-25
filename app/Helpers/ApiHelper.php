@@ -2,7 +2,7 @@
 
 namespace App\Helpers;
 
-class ApiResponse
+class ApiHelper
 {
     public static function responseWithSuccess($message, $data=null, $token=null)
     {
