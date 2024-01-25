@@ -20,12 +20,12 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware('auth:sanctum')->group(function(){
-    Route::apiResource('books',BookController::class);
-    Route::apiResource('sale_records',SaleRecordController::class);
-    Route::apiResource('customers',CustomerController::class);
-    Route::apiResource('categories',CategoryController::class);
-});
-Route::controller(AuthController::class)->group(function(){
-    Route::post('/login','login');
-});
+// Route::middleware('auth:sanctum')->group(function(){
+//     Route::apiResource('books',BookController::class);
+//     Route::apiResource('sale_records',SaleRecordController::class);
+//     Route::apiResource('customers',CustomerController::class);
+//     Route::apiResource('categories',CategoryController::class);
+// });
+// Route::controller(AuthController::class)->group(function(){
+//     Route::post('/login','login');
+// });
