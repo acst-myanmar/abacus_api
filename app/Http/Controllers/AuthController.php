@@ -8,6 +8,7 @@ use App\Http\Requests\ResetPasswordRequest;
 use App\Http\Requests\SinginRequest;
 use App\Http\Requests\SingupRequest;
 use App\Http\Requests\SMSRequest;
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -72,7 +73,7 @@ class AuthController extends Controller
 
             $this->sendOTP($request->phone, $otp_code);
 
-            return response()->json(['user' => $user, 'message' => 'successfully created! verfiy with OTP to ativate your account']);
+            return response()->json(['user' => new UserResource($user), 'message' => 'successfully created! verfiy with OTP to ativate your account']);
         }catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
@@ -112,6 +113,10 @@ class AuthController extends Controller
     {
         try{
             $user = User::find($id);
+
+            if(!$user){
+                return response()->json(['error' => 'Not Found'],404);
+            }
             $otp_code = rand(111111, 999999);
             $user->update([
                 'otp_code' => $otp_code,
@@ -120,7 +125,7 @@ class AuthController extends Controller
 
             $this->sendOTP($user->phone, $user->otp_code);
 
-            return response()->json([$user->otp_code . ' is your new OTP, be careful this time!']);
+            return response()->json(['new_otp' => $user->otp_code . ' is your new OTP, be careful this time!']);
         }catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
@@ -130,8 +135,8 @@ class AuthController extends Controller
     {
         try {
             if (
-                Auth::attempt(['password' => $request->password, 'phone' => $request->resource, 'status' => 1]) ||
-                Auth::attempt(['password' => $request->password, 'username' => $request->resource, 'status' => 1])
+                Auth::attempt(['password' => $request->password, 'phone' => $request->phone, 'status' => 1]) ||
+                Auth::attempt(['password' => $request->password, 'username' => $request->phone, 'status' => 1])
             ) {
 
                 $user = Auth::user();
@@ -139,7 +144,7 @@ class AuthController extends Controller
                 /** @var \App\Models\User $user */
                 $token = $user->createToken($request->password . 'ATUH_TOKEN')->plainTextToken;
 
-                return response()->json(['token' => $token, 'user' => $user], 200);
+                return response()->json(['token' => $token, 'user' => new UserResource($user)], 200);
             } else {
                 return response()->json(['message' => 'The given data was invalid.'], 401);
             }

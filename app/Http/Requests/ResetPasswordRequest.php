@@ -40,15 +40,8 @@ class ResetPasswordRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'success' => 0,
-                'code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'meta' => [
-                    'method' => $this->getMethod(),
-                    'endpoint' => $this->path(),
-                ],
-                'data' => [
-                    'errors' => $validator->errors(),
-                ],
-                'duration' => (float)sprintf("%.3f", (microtime(true) - LARAVEL_START)),
+                'errors' => $validator->errors(),
+
             ], Response::HTTP_UNPROCESSABLE_ENTITY)
         );
     }

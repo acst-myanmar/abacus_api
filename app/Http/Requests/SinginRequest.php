@@ -26,7 +26,7 @@ class SinginRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'resource' => 'required|string',
+            'phone' => 'required|string|min:11',
             'password' => [
                 'required',
                 'string',
@@ -41,16 +41,8 @@ class SinginRequest extends FormRequest
         throw new HttpResponseException(
             response()->json([
                 'success' => 0,
-                'code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'meta' => [
-                    'method' => $this->getMethod(),
-                    'endpoint' => $this->path(),
-                ],
-                'data' => [
-                    'message' => 'The given data was invalid.',
-                    'errors' => $validator->errors(),
-                ],
-                'duration' => (float)sprintf("%.3f", (microtime(true) - LARAVEL_START)),
+                'errors' => $validator->errors(),
+
             ], Response::HTTP_UNPROCESSABLE_ENTITY)
         );
     }

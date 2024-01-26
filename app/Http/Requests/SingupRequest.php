@@ -25,7 +25,7 @@ class SingupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'img' => 'required|mimes:jpeg,png,jpg,pdf|dimensions:min_width=50,min_height=50|max:10240',
+            'img' => 'mimes:jpeg,png,jpg,pdf|dimensions:min_width=50,min_height=50|max:10240',
             'username' => 'required|string|max: 255',
             'phone' => 'required|string|min: 11',
             'email' => 'string|email',
@@ -38,15 +38,9 @@ class SingupRequest extends FormRequest
     {
         throw new HttpResponseException(
             response()->json([
-                'code' => Response::HTTP_UNPROCESSABLE_ENTITY,
-                'meta' => [
-                    'method' => $this->getMethod(),
-                    'endpoint' => $this->path(),
-                ],
-                'data' => [
-                    'errors' => $validator->errors(),
-                ],
-                'duration' => (float)sprintf("%.3f", (microtime(true) - LARAVEL_START)),
+                'success' => 0,
+                'errors' => $validator->errors(),
+
             ], Response::HTTP_UNPROCESSABLE_ENTITY)
         );
     }
