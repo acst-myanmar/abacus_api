@@ -24,7 +24,7 @@ class QuestionController extends Controller
             $possibleOutcome = [];
             $questions = [$firstNumber];
 
-            for ($i = 0; $i <= $validatedData['line']; $i++) {
+            for ($i = 0; ($i < $validatedData['line'] - 1); $i++) {
 
                 switch ($firstNumber) {
                     case 0:
