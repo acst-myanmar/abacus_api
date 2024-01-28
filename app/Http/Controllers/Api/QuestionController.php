@@ -239,7 +239,7 @@ class QuestionController extends Controller
                 $result = $this->randomNumber([-9, -5, -4]);
                 break;
             case 4:
-                $result = [-5];
+                $result = -5;
                 break;
             case 5:
                 $result = $this->randomNumber([-9, -8, -7, -6]);
@@ -251,20 +251,21 @@ class QuestionController extends Controller
                 $result = $this->randomNumber([-9, -8]);
                 break;
             case 8:
-                $result = [-9];
+                $result = -9;
                 break;
             case 9:
-                $result = [rand(-1, -9)];
+                $result = rand(-1, -9);
 
                 break;
             case 0:
                 if ($num >= 10) {
-                    $result = [rand(-1, -9)];
+                    $result = rand(-1, -9);
                 } else {
-                    $result = [rand(1, 9)];
+                    $result = rand(1, 9);
                 }
                 break;
         }
+
 
         return $result;
     }
@@ -288,15 +289,15 @@ class QuestionController extends Controller
             if ($num % 10 == 9) {
                 $result = $this->getPlus($num);
             } else {
-                // if ($this->randomNumber(['+', '-']) == "+") {
-                //     $result = $this->getPlus($num);
-                // } else {
-                if ($num > 10) {
-                    $result = $this->getMinus($num);
-                } else {
+                if ($this->randomNumber(['+', '-']) == "+") {
                     $result = $this->getPlus($num);
+                } else {
+                    if ($num > 10) {
+                        $result = $this->getMinus($num);
+                    } else {
+                        $result = $this->getPlus($num);
+                    }
                 }
-                // }
             }
         }
 
