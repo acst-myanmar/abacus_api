@@ -35,3 +35,5 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::post('/direct-method', [QuestionController::class, 'generatedirectMethod']);
 
 Route::post('/little-friend', [QuestionController::class, 'generateLittleFriend']);
+
+Route::post('/big-friend', [QuestionController::class, 'generateBigFriend']);
