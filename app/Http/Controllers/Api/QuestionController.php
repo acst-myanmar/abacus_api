@@ -265,6 +265,7 @@ class QuestionController extends Controller
                 }
                 break;
         }
+
         return $result;
     }
 
@@ -319,7 +320,7 @@ class QuestionController extends Controller
 
                 $questions[] = $nextQuestion;
 
-                $first_num = array_reduce($questions, function ($a, $b) {
+                $firstNumber = array_reduce($questions, function ($a, $b) {
                     return $a + $b;
                 });
             }
