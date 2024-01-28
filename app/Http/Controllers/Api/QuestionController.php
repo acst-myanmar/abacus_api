@@ -255,15 +255,13 @@ class QuestionController extends Controller
                 break;
             case 9:
                 $result = [rand(-1, -9)];
-                dump($result);
+
                 break;
             case 0:
                 if ($num >= 10) {
                     $result = [rand(-1, -9)];
-                    dump($result);
                 } else {
                     $result = [rand(1, 9)];
-                    dump($result);
                 }
                 break;
         }
