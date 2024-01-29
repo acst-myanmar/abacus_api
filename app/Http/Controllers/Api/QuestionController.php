@@ -22,7 +22,7 @@ class QuestionController extends Controller
 
         try {
 
-            for ($i = 1; ($i < $validatedData['line'] - 1); $i++) {
+            for ($i = 0; ($i < $validatedData['line'] - 1); $i++) {
                 $nextQuestion = $this->directMethod($firstNumber);
 
                 $questions[] = $nextQuestion;
