@@ -2,6 +2,7 @@
 
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\TestingController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -17,5 +18,13 @@ Route::post('/reset_password',[AuthController::class, 'reset_password']);
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::post('/direct_method',[TestingController::class, 'generateDMQ']);
+
+Route::post('/little_friend',[TestingController::class, 'generateLFQ']);
+
+Route::post('/big_friend',[TestingController::class, 'generateBFQ']);
+
+Route::post('/level_1',[TestingController::class, 'generate_lv1']);
 
 
