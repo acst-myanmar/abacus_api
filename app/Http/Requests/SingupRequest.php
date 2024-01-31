@@ -25,7 +25,6 @@ class SingupRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'img' => 'mimes:jpeg,png,jpg,pdf|dimensions:min_width=50,min_height=50|max:10240',
             'username' => 'required|string|max: 255',
             'phone' => 'required|string|min: 11',
             'email' => 'string|email',

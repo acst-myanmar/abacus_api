@@ -9,6 +9,7 @@ use App\Http\Requests\SinginRequest;
 use App\Http\Requests\SingupRequest;
 use App\Http\Requests\SMSRequest;
 use App\Http\Resources\UserResource;
+use App\Models\Stepup;
 use App\Models\User;
 use Carbon\Carbon;
 use Exception;
@@ -38,7 +39,7 @@ class AuthController extends Controller
 
         $data = [
             'to' => $phone,
-            'message' => $otp_code .  "is your OTP!",
+            'message' => $otp_code .  " is your OTP!",
             'sender' => "abacus_mm"
         ];
 
@@ -57,15 +58,15 @@ class AuthController extends Controller
     {
         try{
             $user = new User;
-            $img_url = time() . '_' . $request->img->getClientOriginalName();
-            $request->img->move(public_path('storage/avatars'), $img_url);
-            $otp_code = rand(111111, 999999);
+
+            $first_2 = rand(11, 99);
+            $second_2 = rand(11, 99);
+            $otp_code = $first_2 . $second_2;
 
             $user->username = $request->username;
             $user->phone = $request->phone;
             $user->email = $request->email;
             $user->otp_code = $otp_code;
-            $user->img = $img_url;
             $user->password = $request->password;
             $user->otp_expired = Carbon::now()->addMinutes(5);
 
@@ -89,10 +90,15 @@ class AuthController extends Controller
 
             $user = User::where('otp_code', $request->otp_code)->first();
 
+            $token = $user->createToken($user->password . 'AUTH TOKEN')->plainTextToken;
+
+            $step_up = new Stepup;
+            $step_up->create([
+                'user_id' => $user->id,
+            ]);
             $user->update([
                 'status' => 1,
             ]);
-            $token = $user->createToken($user->password . 'AUTH TOKEN')->plainTextToken;
 
             $now = Carbon::now();
 
@@ -117,7 +123,11 @@ class AuthController extends Controller
             if(!$user){
                 return response()->json(['error' => 'Not Found'],404);
             }
-            $otp_code = rand(111111, 999999);
+
+            $first_2 = rand(11, 99);
+            $second_2 = rand(11, 99);
+            $otp_code = $first_2 . $second_2;
+
             $user->update([
                 'otp_code' => $otp_code,
                 'otp_expired' => Carbon::now()->addMinutes(5),
@@ -158,7 +168,10 @@ class AuthController extends Controller
         try{
             $user = User::where('phone', $request->phone)->first();
 
-            $otp_code = rand(111111, 999999);
+            $first_2 = rand(11, 99);
+            $second_2 = rand(11, 99);
+            $otp_code = $first_2 . $second_2;
+
             $user->update([
                 'otp_code' => $otp_code,
                 'otp_expired' => Carbon::now()->addMinutes(5),
@@ -186,7 +199,7 @@ class AuthController extends Controller
             if ($user && $now->isBefore($user->otp_expired)) {
                 $user->update([
                     'otp_code' => null,
-                    'password' => $request->new_password,
+                    'password' => $request->password,
                 ]);
                 return response()->json(['message' => 'successfully changed your password'], 200);
             }
