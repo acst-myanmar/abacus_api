@@ -31,7 +31,6 @@ class SecondStepController extends Controller
         $second_step->save();
 
         return new SecondStepReource($second_step);
-
     }
 
 
@@ -43,15 +42,18 @@ class SecondStepController extends Controller
     {
         $second_step = SecondStep::find($id);
 
-        if(!$second_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$second_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('second_step', $second_step->practice_time)->first();
+        $used_stepUps = Stepup::where('second_step', $second_step->practice_time)->get();
 
-        if($used_stepUp){
-            $used_stepUp->second_step = $request->practice_time . ':00';
-        $used_stepUp->save();
+        if ($used_stepUps) {
+            foreach ($used_stepUps as $used_stepUp) {
+                // print_r($used_stepUp->second_step);
+                $used_stepUp->second_step = $request->practice_time . ':00';
+                $used_stepUp->save();
+            }
         }
 
         $second_step->practice_time = $request->practice_time . ':00';
@@ -64,21 +66,24 @@ class SecondStepController extends Controller
     {
         $second_step = SecondStep::find($id);
 
-        if(!$second_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$second_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('second_step', $second_step->practice_time )->first();
+        $used_stepUps = Stepup::where('second_step', $second_step->practice_time)->get();
 
-        if($used_stepUp){
-            $used_stepUp->second_step = null;
-        $used_stepUp->save();
+
+        if ($used_stepUps) {
+            foreach ($used_stepUps as $used_stepUp) {
+
+                $used_stepUp->second_step = null;
+                $used_stepUp->save();
+            }
         }
 
         $second_step->delete();
 
 
         return new SecondStepReource($second_step);
-
     }
 }

@@ -40,47 +40,52 @@ class ThirdStepController extends Controller
     {
         $third_step = ThirdStep::find($id);
 
-        if(!$third_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$third_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('third_step', 'like', '%' . $third_step->interest_tag . '%' )->first(); //tags name should unique so we don't have to fu with duplicate tags!
+        $used_stepUps = Stepup::where('third_step', 'like', '%' . $third_step->interest_tag . '%')->get();
 
-        if($used_stepUp){
-            $used_arr = explode('"', $used_stepUp->third_step); // change them into array
 
-            $index =  array_search($third_step->interest_tag, $used_arr); //search index of updated tag
-            foreach($used_arr as $item){
+        if ($used_stepUps) {
 
-                if($item == $third_step->interest_tag){
+            foreach ($used_stepUps as $used_stepUp) {
+                // print_r ($used_stepUp->third_step);
 
-                    $replacements = array($index => $request->interest_tag); // to replace
+                $used_arr = explode('"', $used_stepUp->third_step); // change them into array
 
-                    $new = array_replace($used_arr, $replacements); //replace updated tag with old one
+                $index =  array_search($third_step->interest_tag, $used_arr); //search index of updated tag
+                foreach ($used_arr as $item) {
+
+                    if ($item == $third_step->interest_tag) {
+
+                        $replacements = array($index => $request->interest_tag); // to replace
+
+                        $new = array_replace($used_arr, $replacements); //replace updated tag with old one
+                    }
                 }
+                $last = end($new); //to remove last ]
+
+                $last_index = array_search($last, $new);  // find index of that last ]
+
+                unset($new[0], $new[$last_index]); // kill fist [ && last ]
+                // print_r ($new);
+
+                $toString =  implode('', $new);  // to remove those akuma
+
+                $back_array = explode(',', $toString);  // back to array
+
+
+                $used_stepUp->third_step = $back_array;
+                $used_stepUp->save();
             }
-            $last = end($new); //to remove last ]
-
-            $last_index = array_search($last, $new);  // find index of that last ]
-
-            unset($new[0], $new[$last_index]); // kill fist [ && last ]
-            // print_r ($new);
-
-            $toString =  implode('', $new);  // to remove those akuma
-
-            $back_array = explode(',', $toString);  // back to array
+        };
 
 
-            $used_stepUp->third_step = $back_array;
-            $used_stepUp->save();
-        }
+        $third_step->interest_tag = $request->interest_tag;
+        $third_step->save();
 
-
-            $third_step->interest_tag = $request->interest_tag;
-            $third_step->save();
-
-            return new ThirdStepResource($third_step);
-
+        return new ThirdStepResource($third_step);
     }
 
     /**
@@ -90,41 +95,56 @@ class ThirdStepController extends Controller
     {
         $third_step = ThirdStep::find($id);
 
-        if(!$third_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$third_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('third_step', 'like', '%' . $third_step->interest_tag . '%' )->first();
+        $used_stepUps = Stepup::where('third_step', 'like', '%' . $third_step->interest_tag . '%')->get();
 
-        if($used_stepUp){
-            $used_arr = explode('"', $used_stepUp->third_step);
+        if ($used_stepUps) {
 
-        $index =  array_search($third_step->interest_tag, $used_arr); //index of incoming array
-        foreach($used_arr as $item){
+            foreach ($used_stepUps as $used_stepUp) {
+                // print_r ($used_stepUp->third_step);
 
-            if($item == $third_step->interest_tag){
+                $used_arr = explode('"', $used_stepUp->third_step);
+                // print_r (($used_arr));
 
-                $last = end($used_arr); //to remove last ]
+                $index =  array_search($third_step->interest_tag, $used_arr); //index of incoming array
 
-                $last_index = array_search($last, $used_arr);  // find index of that last ]
+                foreach ($used_arr as $item) {
 
-                unset($used_arr[0], $used_arr[$index], $used_arr[$last_index]); // remove first [, deleted tag, last ]
+                    if ($item == $third_step->interest_tag) {
 
-                if($used_arr[$index +1] === ','){
+                        $last = end($used_arr); //to remove last ]
 
-                    unset($used_arr[0], $used_arr[$index], $used_arr[$index+1], $used_arr[$last_index]); // also remove , after that tag
+                        $last_index = array_search($last, $used_arr);  // find index of that last ]
+
+
+                        if (count($used_arr) > 3) {
+
+                            if ($used_arr[$index - 1] === ',' && $used_arr[$index + 1] === ']') { //  remove , before that tag if that's last tag
+
+                                unset($used_arr[0], $used_arr[$index], $used_arr[$index - 1], $used_arr[$last_index]);
+                                print_r($used_arr);
+                            } else if ($used_arr[$index + 1] === ',') { // also remove , after that tag if that's inner tag
+
+                                unset($used_arr[0], $used_arr[$index], $used_arr[$index + 1], $used_arr[$last_index]);
+                            }
+
+                            $toString =  implode('', $used_arr);
+                            $back_array = explode(',', $toString);
+
+                            $used_stepUp->third_step = $back_array;
+
+                            $used_stepUp->save();
+                        } else {
+                            $used_stepUp->third_step = null;
+                            $used_stepUp->save();
+                        }
+                    }
                 }
             }
         }
-
-        $toString =  implode('', $used_arr); // change to string to remove [1] => , [2] => ....
-
-        $back_array = explode(',', $toString); // back to array to store in json format
-
-        $used_stepUp->third_step = $back_array;
-        $used_stepUp->save();
-        }
-
         $third_step->delete();
 
         return new ThirdStepResource($third_step);

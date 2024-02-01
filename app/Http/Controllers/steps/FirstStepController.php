@@ -34,19 +34,24 @@ class FirstStepController extends Controller
     {
         $first_step = FirstStep::find($id);
 
-        if(!$first_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$first_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('first_step', $first_step->question)->first();
+        $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
+
+        if ($used_stepUps) {
+            foreach ($used_stepUps as $used_stepUp) {
+                // print_r($used_stepUp->first_step);
+
+                $used_stepUp->first_step = $request->question;
+                $used_stepUp->save();
+            }
+        }
+
         $first_step->update([
             'question' => $request->question
         ]);
-
-        if($used_stepUp){
-            $used_stepUp->first_step = $request->question;
-            $used_stepUp->save();
-        }
 
         return new FirstStepResource($first_step);
     }
@@ -55,15 +60,18 @@ class FirstStepController extends Controller
     {
         $first_step = FirstStep::find($id);
 
-        if(!$first_step){
-            return response()->json(['error' => "we don't have info with that id"],404);
+        if (!$first_step) {
+            return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUp = Stepup::where('first_step', $first_step->question)->first();
+        $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
 
-        if($used_stepUp){
-            $used_stepUp->first_step = null;
-            $used_stepUp->save();
+        if ($used_stepUps) {
+            foreach ($used_stepUps as $used_stepUp) {
+
+                $used_stepUp->first_step = null;
+                $used_stepUp->save();
+            }
         }
 
         $first_step->delete();
