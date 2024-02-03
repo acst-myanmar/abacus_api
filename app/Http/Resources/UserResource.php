@@ -21,7 +21,8 @@ class UserResource extends JsonResource
             'email' => $this->email,
             'otp_code' => $this->otp_code,
             // 'otp_expired' => $this->otp_expired,
-            'stepup' => new StepupResource($this->stepup),
+            // 'stepup' => new StepupResource($this->stepup),
+            'stepup' => new StepupResource($this->whenLoaded('stepup')),
         ];
     }
 }

@@ -90,6 +90,7 @@ class AuthController extends Controller
 
             $user = User::where('otp_code', $request->otp_code)->first();
 
+
             $token = $user->createToken($user->password . 'AUTH TOKEN')->plainTextToken;
 
             $step_up = new Stepup;
@@ -106,6 +107,7 @@ class AuthController extends Controller
                 $user->update([
                     'otp_code' => null,
                 ]);
+
                 return response()->json(['token' => $token, 'user' => $user, 'message' => 'successfully activated your account!'], 200);
             }
             return response()->json(['error' => 'your OTP expired!'], 422);
@@ -145,18 +147,19 @@ class AuthController extends Controller
     {
         try {
             if (
-                Auth::attempt(['password' => $request->password, 'phone' => $request->phone, 'status' => 1]) ||
-                Auth::attempt(['password' => $request->password, 'username' => $request->phone, 'status' => 1])
+                Auth::attempt(['password' => $request->password, 'phone' => $request->phone, 'status' => 1])
             ) {
 
                 $user = Auth::user();
-
                 /** @var \App\Models\User $user */
+
+                $user->tokens()->delete();
+
                 $token = $user->createToken($request->password . 'ATUH_TOKEN')->plainTextToken;
 
                 return response()->json(['token' => $token, 'user' => new UserResource($user)], 200);
             } else {
-                return response()->json(['message' => 'The given data was invalid.'], 401);
+                return response()->json(['message' => 'Invalid sigin! Make sure u logout from the other device'], 401);
             }
         } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
@@ -208,6 +211,20 @@ class AuthController extends Controller
         }catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
+    }
+
+
+    public function signout(Request $request){
+        $user = $request->user();
+
+        // $user->update([
+        //     'status' => 1,
+        // ]);
+        $user->currentAccessToken()->delete();
+
+        return response()->json([
+            'message' => "successfully logout."
+        ],200);
     }
 
 }
