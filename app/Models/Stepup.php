@@ -9,7 +9,7 @@ class Stepup extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['user_id', 'second_step', 'third_step', 'first_step_id'];
+    protected $fillable = ['user_id', 'second_step', 'first_step_id'];
 
     protected $casts = [
         'third_step' => 'json',
