@@ -38,16 +38,16 @@ class FirstStepController extends Controller
             return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
+        // $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
 
-        if ($used_stepUps) {
-            foreach ($used_stepUps as $used_stepUp) {
-                // print_r($used_stepUp->first_step);
+        // if ($used_stepUps) {
+        //     foreach ($used_stepUps as $used_stepUp) {
+        //         // print_r($used_stepUp->first_step);
 
-                $used_stepUp->first_step = $request->question;
-                $used_stepUp->save();
-            }
-        }
+        //         $used_stepUp->first_step = $request->question;
+        //         $used_stepUp->save();
+        //     }
+        // }
 
         $first_step->update([
             'question' => $request->question
@@ -64,15 +64,15 @@ class FirstStepController extends Controller
             return response()->json(['error' => "we don't have info with that id"], 404);
         }
 
-        $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
+        // $used_stepUps = Stepup::where('first_step', $first_step->question)->get();
 
-        if ($used_stepUps) {
-            foreach ($used_stepUps as $used_stepUp) {
+        // if ($used_stepUps) {
+        //     foreach ($used_stepUps as $used_stepUp) {
 
-                $used_stepUp->first_step = null;
-                $used_stepUp->save();
-            }
-        }
+        //         $used_stepUp->first_step = null;
+        //         $used_stepUp->save();
+        //     }
+        // }
 
         $first_step->delete();
 

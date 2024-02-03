@@ -10,4 +10,8 @@ class FirstStep extends Model
     use HasFactory;
 
     protected $fillable = ['question'];
+
+    public function stepUps(){
+        return $this->hasMany(Stepup::class);
+    }
 }

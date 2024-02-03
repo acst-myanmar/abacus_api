@@ -52,7 +52,7 @@ class ThirdStepController extends Controller
             foreach ($used_stepUps as $used_stepUp) {
                 // print_r ($used_stepUp->third_step);
 
-                $used_arr = explode('"', $used_stepUp->third_step); // change them into array
+                $used_arr = $used_stepUp->third_step; // change them into array
 
                 $index =  array_search($third_step->interest_tag, $used_arr); //search index of updated tag
                 foreach ($used_arr as $item) {
@@ -88,9 +88,6 @@ class ThirdStepController extends Controller
         return new ThirdStepResource($third_step);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         $third_step = ThirdStep::find($id);

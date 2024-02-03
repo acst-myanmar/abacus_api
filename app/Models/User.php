@@ -26,8 +26,6 @@ class User extends Authenticatable
         'email',
         'password',
         'img',
-        'first_step',
-        'second_step',
         'stepup_id'
     ];
 
@@ -49,11 +47,7 @@ class User extends Authenticatable
     protected $casts = [
         'email_verified_at' => 'datetime',
         'password' => 'hashed',
-        'third_step' => 'json',
     ];
-
-
-
     public function stepup(){
         return $this->hasOne(Stepup::class);
     }

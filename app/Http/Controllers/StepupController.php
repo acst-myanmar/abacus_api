@@ -10,6 +10,7 @@ use App\Http\Resources\UserResource;
 use App\Models\FirstStep;
 use App\Models\Stepup;
 use App\Models\ThirdStep;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -27,8 +28,8 @@ class StepupController extends Controller
         $img_name = time() . '_' . $request->img->getClientOriginalName();
         $request->img->move(public_path('storage/avatars'), $img_name);
 
-        $user->setup_id = $user_stepup->id;
-        $user->save();
+        // $user->setup_id = $user_stepup->id;
+        // $user->save();
 
         $user_stepup->img = $img_name;
         $user_stepup->save();
@@ -36,28 +37,27 @@ class StepupController extends Controller
         return new StepupResource($user_stepup);
     }
 
-    public  function step_one($id)
+    public  function step_one($id) //with rs
     {
         /** @var \App\Models\User $user */
         $user = Auth::user();
 
-
-        $first_step = FirstStep::find($id);
         $user_stepup = Stepup::where('user_id', $user->id)->first();
 
-        $user->setup_id = $user_stepup->id;
-        $user->save();
-
         $user_stepup->update([
-            'first_step' => $first_step->question
+            'first_step_id' => $id,
         ]);
+
+
+        $user->load('stepup');
+
 
 
         return new UserResource($user);
 
     }
 
-    public function step_two(SecondStepRequest $request)
+    public function step_two(SecondStepRequest $request) //single request
     {
 
         /** @var \App\Models\User $user */
@@ -65,13 +65,12 @@ class StepupController extends Controller
 
         $user_stepup = Stepup::where('user_id', $user->id)->first();
 
-        $user->setup_id = $user_stepup->id;
-        $user->save();
-
         $user_stepup->second_step = $request->practice_time  . ":00";
         $user_stepup->save();
 
-        return new StepupResource($user_stepup);
+        $user->load('stepup');
+
+        return new UserResource($user);
     }
 
     public function step_three(ThirdStepRequest $request)
@@ -96,9 +95,12 @@ class StepupController extends Controller
         $user_stepup->third_step = $ans;
         $user_stepup->save();
 
-        $user->setup_id = $user_stepup->id;
-        $user->save();
+        $user->load('stepup');
+
 
         return new UserResource($user);
+
+        // return $ans;
     }
+
 }

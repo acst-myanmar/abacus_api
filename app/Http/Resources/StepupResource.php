@@ -16,10 +16,10 @@ class StepupResource extends JsonResource
     {
         return [
             'img' => $this->img,
-            'first_step' => $this->first_step,
+            'first_step' => $this->firstStep->question,
+            // 'second_step' => $this->secondStep->practice_time,
             'second_step' => $this->second_step,
             'third_step' => $this->third_step,
-            // 'user' => $this->user,
         ];
     }
 }

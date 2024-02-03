@@ -20,7 +20,6 @@ return new class extends Migration
             $table->boolean('status')->default(0);
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_expired')->nullable();
-            $table->foreignId('setup_id')->unsigned()->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

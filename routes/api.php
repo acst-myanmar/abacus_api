@@ -25,6 +25,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 Route::middleware('auth:sanctum')->post('/upload_img',[StepupController::class, 'upload_img']);
 Route::middleware('auth:sanctum')->get('/step_one/{id}',[StepupController::class, 'step_one']);
+// Route::get('/step_one/{id}',[StepupController::class, 'step_one']);
 Route::middleware('auth:sanctum')->post('/step_two',[StepupController::class, 'step_two']);
 Route::middleware('auth:sanctum')->post('/step_three',[StepupController::class, 'step_three']);
 
