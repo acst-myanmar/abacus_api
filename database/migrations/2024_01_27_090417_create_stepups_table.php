@@ -18,7 +18,6 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class);
             $table->foreignIdFor(FirstStep::class)->nullable();
-            // $table->foreignIdFor(SecondStep::class)->nullable();
             $table->string('img')->nullable();
             $table->time('second_step')->format('H:i')->nullable();
             $table->json('third_step')->nullable();

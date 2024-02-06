@@ -5,7 +5,7 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
-class StepupResource extends JsonResource
+class AnswerResource extends JsonResource
 {
     /**
      * Transform the resource into an array.
@@ -16,10 +16,9 @@ class StepupResource extends JsonResource
     {
         return [
             'img' => $this->img,
-            'first_step' => new FirstStepResource($this->whenLoaded('firstStep')),
-            // 'second_step' => $this->secondStep->practice_time,
+            'first_step' => $this->first_step,
             'second_step' => $this->second_step,
-            'third_step' => $this->third_step,
+            'third_step' => $this->thrid_step,
         ];
     }
 }

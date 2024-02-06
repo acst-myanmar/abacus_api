@@ -217,9 +217,6 @@ class AuthController extends Controller
     public function signout(Request $request){
         $user = $request->user();
 
-        // $user->update([
-        //     'status' => 1,
-        // ]);
         $user->currentAccessToken()->delete();
 
         return response()->json([

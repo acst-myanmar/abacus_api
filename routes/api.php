@@ -19,30 +19,35 @@ Route::post('/forgot_password',[AuthController::class, 'forgot_password']);
 Route::post('/reset_password',[AuthController::class, 'reset_password']);
 
 
-Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
-    return $request->user();
+Route::group(['middleware' => 'auth:sanctum'], function() {
+
+    // Route::post('/upload_img',[StepupController::class, 'upload_img']);
+    // Route::get('/step_one/{id}',[StepupController::class, 'step_one']);
+    // Route::post('/step_two',[StepupController::class, 'step_two']);
+    // Route::post('/step_three',[StepupController::class, 'step_three']);
+
+    Route::get('/resources',[StepupController::class, 'resources']);
+    Route::post('/submited_answers',[StepupController::class, 'submited_answers']);
+
+    Route::post('/direct_method',[TestingController::class, 'generateDMQ']);
+    Route::post('/little_friend',[TestingController::class, 'generateLFQ']);
+    Route::post('/big_friend',[TestingController::class, 'generateBFQ']);
+    Route::post('/level_1',[TestingController::class, 'generate_lv1']);
+
+
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/signout',[AuthController::class, 'signout']);
 });
-
-Route::middleware('auth:sanctum')->post('/upload_img',[StepupController::class, 'upload_img']);
-Route::middleware('auth:sanctum')->get('/step_one/{id}',[StepupController::class, 'step_one']);
-Route::middleware('auth:sanctum')->post('/step_two',[StepupController::class, 'step_two']);
-Route::middleware('auth:sanctum')->post('/step_three',[StepupController::class, 'step_three']);
-
-Route::middleware('auth:sanctum')->post('/signout',[AuthController::class, 'signout']);
-
-
-Route::post('/direct_method',[TestingController::class, 'generateDMQ']);
-
-Route::post('/little_friend',[TestingController::class, 'generateLFQ']);
-
-Route::post('/big_friend',[TestingController::class, 'generateBFQ']);
-
-Route::post('/level_1',[TestingController::class, 'generate_lv1']);
 
 
 Route::apiResource('first_steps', FirstStepController::class);
 Route::apiResource('second_steps', SecondStepController::class);
 Route::apiResource('third_steps', ThirdStepController::class);
 
-Route::get('/resources',[StepupController::class, 'resources']);
-Route::middleware('auth:sanctum')->post('/submit_answers',[StepupController::class, 'submit_answers']);
+
+
+
+
+
