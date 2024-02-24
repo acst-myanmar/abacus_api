@@ -26,7 +26,7 @@ class SecondStepController extends Controller
     public function store(SecondStepRequest $request)
     {
         $second_step = new SecondStep;
-        $second_step->practice_time = $request->practice_time;
+        $second_step->practice_time = $request->practice_time .":00";
         // $second_step->practice_time = Carbon::createFromFormat('H:i', $request->practice_time)->format('H:i');
         $second_step->save();
 

@@ -2,6 +2,9 @@
 
 
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\QuestionSettingController;
+use App\Http\Controllers\RoomController;
 use App\Http\Controllers\steps\FirstStepController;
 use App\Http\Controllers\steps\SecondStepController;
 use App\Http\Controllers\StepupController;
@@ -39,7 +42,19 @@ Route::group(['middleware' => 'auth:sanctum'], function() {
         return $request->user();
     });
     Route::post('/signout',[AuthController::class, 'signout']);
+
+
+    Route::post('/send_notification',[NotificationController::class, 'SendNotification']);
+    Route::post('/set_question_setting',[QuestionSettingController::class, 'setQuestionSetting']);
+    Route::get('/set_question_setting/{id}',[QuestionSettingController::class, 'setting']);
+    Route::post('/set_question',[QuestionSettingController::class, 'setQuestion']);
+    Route::get('/one_to_one/{id}',[RoomController::class, 'OneToOne']);
+    Route::post('/create_group',[RoomController::class, 'CreateGroup']);
+    Route::post('/send_message',[RoomController::class, 'SendMessage']);
 });
+Route::get('/groups/{id}',[RoomController::class, 'UserGroups']);
+Route::get('/friends/{id}',[RoomController::class, 'UserFriends']);
+Route::get('/messages/{id}',[RoomController::class, 'GetMessages']);
 
 
 Route::apiResource('first_steps', FirstStepController::class);

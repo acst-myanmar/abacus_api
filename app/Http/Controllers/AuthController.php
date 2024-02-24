@@ -56,7 +56,7 @@ class AuthController extends Controller
 
     public function signup(SingupRequest $request)
     {
-        try{
+        try {
             $user = new User;
 
             $first_2 = rand(11, 99);
@@ -74,22 +74,23 @@ class AuthController extends Controller
 
             $this->sendOTP($request->phone, $otp_code);
 
-            return response()->json(['user' => new UserResource($user), 'message' => 'successfully created! verfiy with OTP to ativate your account']);
-        }catch (Exception $e) {
+            return response()->json([
+                'user' => new UserResource($user),
+                'message' => 'successfully created! verfiy with OTP to ativate your account'
+            ]);
+        } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
-
     }
 
     public function sms_verification(SMSRequest $request)
     {
-        try{
-            if ($request->otp_code == null) {
-                return response()->json(['??' => "nice try!"]);
-            }
-
+        try {
             $user = User::where('otp_code', $request->otp_code)->first();
 
+            if (!$user) {
+                return response()->json(['error' => 'wrong otp, please try again!']);
+            }
 
             $token = $user->createToken($user->password . 'AUTH TOKEN')->plainTextToken;
 
@@ -110,20 +111,20 @@ class AuthController extends Controller
 
                 return response()->json(['token' => $token, 'user' => $user, 'message' => 'successfully activated your account!'], 200);
             }
+
             return response()->json(['error' => 'your OTP expired!'], 422);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
-
     }
 
     public function resendOTP($id)
     {
-        try{
+        try {
             $user = User::find($id);
 
-            if(!$user){
-                return response()->json(['error' => 'Not Found'],404);
+            if (!$user) {
+                return response()->json(['error' => 'Not Found'], 404);
             }
 
             $first_2 = rand(11, 99);
@@ -137,8 +138,8 @@ class AuthController extends Controller
 
             $this->sendOTP($user->phone, $user->otp_code);
 
-            return response()->json(['new_otp' => $user->otp_code . ' is your new OTP, be careful this time!']);
-        }catch (Exception $e) {
+            return response()->json(['new_otp' => $user->otp_code . ' is new otp']);
+        } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
@@ -168,7 +169,7 @@ class AuthController extends Controller
 
     public function forgot_password(ForgotPasswordRequest $request)
     {
-        try{
+        try {
             $user = User::where('phone', $request->phone)->first();
 
             $first_2 = rand(11, 99);
@@ -183,14 +184,14 @@ class AuthController extends Controller
             $this->sendOTP($request->phone, $otp_code);
 
             return response()->json(['use this OTP {' . $user->otp_code . '} to change your password']);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
     public function reset_password(ResetPasswordRequest $request)
     {
-        try{
+        try {
             if ($request->otp_code == null) {
                 return response()->json(['??' => "nice try!"]);
             }
@@ -208,20 +209,19 @@ class AuthController extends Controller
             }
 
             return response()->json(['error' => 'your OTP expired!'], 422);
-        }catch (Exception $e) {
+        } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
-
-    public function signout(Request $request){
+    public function signout(Request $request)
+    {
         $user = $request->user();
 
         $user->currentAccessToken()->delete();
 
         return response()->json([
             'message' => "successfully logout."
-        ],200);
+        ], 200);
     }
-
 }

@@ -51,4 +51,8 @@ class User extends Authenticatable
     public function stepup(){
         return $this->hasOne(Stepup::class);
     }
+
+    public function rooms(){
+        return $this->belongsToMany(Room::class);
+    }
 }

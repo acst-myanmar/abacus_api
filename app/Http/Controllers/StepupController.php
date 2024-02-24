@@ -29,21 +29,14 @@ class StepupController extends Controller
             return;
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $user_stepup = Stepup::where('user_id', $user->id)->first();
+        $user_stepup = Stepup::where('user_id', auth()->user()->id)->first();
 
         $img_name = time() . '_' . $img_url->getClientOriginalName();
         $img_url->move(public_path('storage/avatars'), $img_name);
 
-        // $user->setup_id = $user_stepup->id;
-        // $user->save();
-
         $user_stepup->img = $img_name;
         $user_stepup->save();
 
-        return new StepupResource($user_stepup);
     }
 
     public  function step_one($id) //with rs
@@ -63,12 +56,6 @@ class StepupController extends Controller
         $user->stepup->load('firstStep');
 
         return new StepupResource($user->stepup);
-
-
-        // $user->load('stepup');
-
-        // return new UserResource($user);
-
     }
 
     // public function step_two(SecondStepRequest $request) //single request
@@ -78,17 +65,12 @@ class StepupController extends Controller
             return;
         }
 
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
+         /** @var \App\Models\User $user */
+         $user = Auth::user();
+         $user->stepup->update([
+            'second_step' =>  $practice_time  . ":00",
+        ]);
 
-        $user_stepup = Stepup::where('user_id', $user->id)->first();
-
-        $user_stepup->second_step = $practice_time  . ":00";
-        $user_stepup->save();
-
-        $user_stepup->load('firstStep');
-
-        return new StepupResource($user_stepup);
 
     }
 
@@ -98,30 +80,22 @@ class StepupController extends Controller
         if($tagIds === null){
             return;
         }
-
-        /** @var \App\Models\User $user */
-        $user = Auth::user();
-
-        $user_stepup = Stepup::where('user_id', $user->id)->first();
-
         $ans = [];
 
-        $data = explode(',', $tagIds);
+        // $data = explode(',', $tagIds);
 
-        foreach ($data as $id) {
+        foreach ($tagIds as $id) {
             $third_step = ThirdStep::find($id);
             if ($third_step) {
-                // echo $third_step->interest_tag;
                 array_push($ans, $third_step->interest_tag);
             }
         }
 
-        $user_stepup->third_step = $ans;
-        $user_stepup->save();
-
-        $user_stepup->load('firstStep');
-
-        return new StepupResource($user_stepup);
+         /** @var \App\Models\User $user */
+         $user = Auth::user();
+         $user->stepup->update([
+            'third_step' => $ans,
+        ]);
 
     }
 
@@ -138,25 +112,12 @@ class StepupController extends Controller
 
     public function submited_answers(AnswersRequest $request){
 
-
-        // // $request->user()->tokens()->delete();
-         /** @var \App\Models\User $user */
-         $user = Auth::user();
-
-
             $this->upload_img($request->img);
             $this->step_one($request->first_step);
             $this->step_two($request->second_step);
             $this->step_three($request->third_steps);
 
-            if($request->first_step){
-                $user->stepup->load('firstStep');
-            }
-
-            return new StepupResource($user->stepup);
-
-
-
+            return new StepupResource(auth()->user()->stepup);
     }
 
 }
