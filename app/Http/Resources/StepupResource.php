@@ -16,8 +16,8 @@ class StepupResource extends JsonResource
     {
         return [
             'img' => $this->img,
-            // 'first_step' => new FirstStepResource($this->firstStep),
-            'first_step' => $this->firstStep->question,
+            'first_step' => new FirstStepResource($this->whenLoaded('firstStep')),
+            // 'first_step' => $this->firstStep->question,
             // 'second_step' => $this->secondStep->practice_time,
             'second_step' => $this->second_step,
             'third_steps' => $this->third_step,

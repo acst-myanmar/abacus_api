@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('phone');
             $table->string('email')->nullable();
             $table->string('password');
-            $table->boolean('status')->default(0);
+            $table->boolean('status')->default(false);
             $table->string('otp_code')->nullable();
             $table->timestamp('otp_expired')->nullable();
             $table->rememberToken();

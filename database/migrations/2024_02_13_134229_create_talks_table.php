@@ -17,7 +17,7 @@ return new class extends Migration
             $table->foreignId('sender_id')->constrained('users')->cascadeOnDelete();
             $table->unsignedInteger('data_id')->nullable();
             $table->string('message');
-            $table->boolean('read')->default(0);
+            $table->boolean('read')->default(false);
             $table->timestamps();
         });
     }

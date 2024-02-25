@@ -24,7 +24,7 @@ class ApiHelper
         }
     }
 
-    public static function responseWithUnauthorized($message="Unauthorized")
+    public static function responseWithUnauthorized($message)
     {
         return response()->json([
             'success'=>false,
@@ -34,7 +34,7 @@ class ApiHelper
         ], 401);
     }
 
-    public static function responseWithNotFound($message="not found")
+    public static function responseWithNotFound($message)
     {
         return response()->json([
             'success'=>false,

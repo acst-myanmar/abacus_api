@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\ApiHelper;
 use App\Http\Requests\AnswersRequest;
 use App\Http\Requests\ImageUploadRequest;
 use App\Http\Requests\SecondStepRequest;
@@ -18,12 +19,12 @@ use App\Models\Stepup;
 use App\Models\ThirdStep;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class StepupController extends Controller
 {
 
-    // public function upload_img(ImageUploadRequest $request)
-    public function upload_img($img_url)
+    public function uploadImg($img_url)
     {
         if($img_url === null){
             return;
@@ -32,14 +33,14 @@ class StepupController extends Controller
         $user_stepup = Stepup::where('user_id', auth()->user()->id)->first();
 
         $img_name = time() . '_' . $img_url->getClientOriginalName();
-        $img_url->move(public_path('storage/avatars'), $img_name);
+        Storage::disk('public')->put('profiles/' .$img_name, file_get_contents($img_url));
 
         $user_stepup->img = $img_name;
         $user_stepup->save();
 
     }
 
-    public  function step_one($id) //with rs
+    public  function stepOne($id) //with rs
     {
 
         if($id === null){
@@ -58,8 +59,7 @@ class StepupController extends Controller
         return new StepupResource($user->stepup);
     }
 
-    // public function step_two(SecondStepRequest $request) //single request
-    public function step_two($practice_time) //single request
+    public function stepTwo($practice_time) //single request
     {
         if($practice_time === null){
             return;
@@ -74,17 +74,16 @@ class StepupController extends Controller
 
     }
 
-    // public function step_three(ThirdStepRequest $request)
-    public function step_three($tagIds)
+    public function stepThree($tag_ids)
     {
-        if($tagIds === null){
+        if($tag_ids === null){
             return;
         }
         $ans = [];
 
-        // $data = explode(',', $tagIds);
+        // $data = explode(',', $tag_ids);
 
-        foreach ($tagIds as $id) {
+        foreach ($tag_ids as $id) {
             $third_step = ThirdStep::find($id);
             if ($third_step) {
                 array_push($ans, $third_step->interest_tag);
@@ -107,17 +106,23 @@ class StepupController extends Controller
 
         $third_steps = ThirdStepResource::collection(ThirdStep::all());
 
-        return response()->json(['resources' => ['first_steps' => $first_steps, 'second_steps' => $second_steps, 'third_steps' => $third_steps]]);
+        return ApiHelper::responseWithSuccess(null,['first_steps' => $first_steps, 'second_steps' => $second_steps, 'third_steps' => $third_steps]);
     }
 
-    public function submited_answers(AnswersRequest $request){
+    public function submitedAnswers(AnswersRequest $request){
 
-            $this->upload_img($request->img);
-            $this->step_one($request->first_step);
-            $this->step_two($request->second_step);
-            $this->step_three($request->third_steps);
+            $this->uploadImg($request->img);
+            $this->stepOne($request->first_step);
+            $this->stepTwo($request->second_step);
+            $this->stepThree($request->third_steps);
 
-            return new StepupResource(auth()->user()->stepup);
+            if($request->first_step){
+                auth()->user()->firstStep;
+            }
+
+            return ApiHelper::responseWithSuccess(
+                'Successfully Stepup',
+                new StepupResource(auth()->user()->stepup));
     }
 
 }

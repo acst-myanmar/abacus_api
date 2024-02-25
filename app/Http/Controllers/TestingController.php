@@ -11,7 +11,7 @@ use Illuminate\Support\Facades\Log;
 class TestingController extends Controller
 {
 
-    public function direct_method($line, $first_num, $one){
+    public function directMethod($line, $first_num, $one){
 
         $possible_result = [];
         $questions = [$first_num];
@@ -60,7 +60,7 @@ class TestingController extends Controller
         return ['questions' => $questions, 'answer' => $answer];
     }
 
-    public function little_friend($line,$first_num, $one)
+    public function littleFriend($line,$first_num, $one)
     {
         $possible_result = [];
         $questions = [$first_num];
@@ -110,7 +110,7 @@ class TestingController extends Controller
         return ['questions' => $questions,'answer' => $answer];
     }
 
-    public function big_friend($line,$first_num, $one){
+    public function bigFriend($line,$first_num, $one){
 
         $first_num = rand(1, 99);
         $questions = [$first_num];
@@ -155,7 +155,7 @@ class TestingController extends Controller
         try{
 
             $first_num = rand(0, 9);
-            $data = $this->direct_method($request->line, $first_num, 2);
+            $data = $this->directMethod($request->line, $first_num, 2);
             return $data;
 
         }catch (Exception $e) {
@@ -167,7 +167,7 @@ class TestingController extends Controller
     {
         try{
             $first_num = rand(0, 9);
-            $data = $this->little_friend($request->line, $first_num, 2);
+            $data = $this->littleFriend($request->line, $first_num, 2);
             return $data;
         }catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
@@ -178,7 +178,7 @@ class TestingController extends Controller
     {
         try{
             $firstNum = rand(1,99);
-            $data = $this->big_friend($request->line,$firstNum, 3);
+            $data = $this->bigFriend($request->line,$firstNum, 3);
             return $data;
 
         }catch (Exception $e) {
@@ -186,7 +186,7 @@ class TestingController extends Controller
         }
     }
 
-    public function generate_lv1(QuestionRequest $request)
+    public function generateLevel1(QuestionRequest $request)
     {
         try{
 
@@ -199,17 +199,17 @@ class TestingController extends Controller
                 $rand_question = $this->randomNum([1,2,3]);
 
                 if($rand_question === 1 && $firstNum > 0){
-                    $question = $this->direct_method(2,$firstNum, 1);
+                    $question = $this->directMethod(2,$firstNum, 1);
                     // echo  'im dm' . $question . '||||||||';
                     array_push($questions, $question);
 
                 }else if($rand_question === 2 && $firstNum > 0){
-                    $question = $this->little_friend(2 ,$firstNum,1);
+                    $question = $this->littleFriend(2 ,$firstNum,1);
                     // echo  'im lf' . $question . "||||||||";
                     array_push($questions, $question);
 
                 }else{
-                    $question = $this->big_friend(2 ,$firstNum, 1);
+                    $question = $this->bigFriend(2 ,$firstNum, 1);
                     // echo 'im bf' . $question . '||||||||';
                     array_push($questions, $question);
                 }
@@ -223,6 +223,7 @@ class TestingController extends Controller
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
+
     public function randomNum($input_array){
         $random_value = array_rand($input_array);
         $rand_num = $input_array[$random_value];
@@ -313,3 +314,5 @@ class TestingController extends Controller
     }
 
 }
+
+

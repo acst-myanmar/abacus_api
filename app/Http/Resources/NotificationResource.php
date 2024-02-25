@@ -18,8 +18,12 @@ class NotificationResource extends JsonResource
             'title' => $this->title,
             'description' => $this->description,
             'read' => $this->read,
-            'sender' => new UserResource($this->whenLoaded('sender')),
-            'receiver' => new UserResource($this->whenLoaded('receiver')),
+            'sender_id' => $this->sender->id,
+            'sender' => $this->sender->username,
+            'receiver_id' => $this->receiver->id,
+            'receiver' => $this->receiver->username,
+            // 'sender' => new UserResource($this->whenLoaded('sender')),
+            // 'receiver' => new UserResource($this->whenLoaded('receiver')),
         ];
     }
 }

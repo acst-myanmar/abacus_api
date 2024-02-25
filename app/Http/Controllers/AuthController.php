@@ -15,46 +15,41 @@ use Carbon\Carbon;
 use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
 
-    public function sendOTP($phone, $otp_code)
+    public function sendOtp($phone, $otp_code)
     {
 
         $user = User::where('phone', $phone)->first();
 
-        $client = new Client();
+        $base_url = 'https://smspoh.com/api/v2/send';;
 
-        $token = 'ZugHBnKarsVKdlii2GBW0FcWBedUlxLmiW2c8Kdsvmr1bLF2G9AdvaThtsdRKGoV';
+        if($user){
+            $postResponse = Http::withHeaders([
+                'Authorization' => 'Bearer ' . env('OTP_TOKEN'),
+                "Accept" => "application/json",
+                'Content-Type' => 'application/json',
+            ])
+            ->post($base_url, [
+                'to' => $phone,
+                'message' => $otp_code .  " is your OTP!",
+                'sender' => "abacus_mm"
+            ]);
 
-        $base_url = 'https://smspoh.com/api/v2/send';
-
-        $headers = [
-            'Content-Type' => 'application/json',
-            "Accept" => "application/json",
-            "Authorization" => "Bearer " . $token,
-        ];
-
-        $data = [
-            'to' => $phone,
-            'message' => $otp_code .  " is your OTP!",
-            'sender' => "abacus_mm"
-        ];
-
-        $postResponse = $client->post($base_url, [
-            'headers' => $headers,
-            'json' => $data,
-        ]);
-
-        if ($postResponse->getStatusCode() == 200) {
-            // $response = $postResponse->getBody();
-            return $postResponse->getStatusCode();
+            if ($postResponse->successful()) {
+                return $postResponse->getBody();
+            }else {
+                return $postResponse->status();
+            }
         }
+
     }
 
-    public function signup(SingupRequest $request)
+    public function signUp(SingupRequest $request)
     {
         try {
             $user = new User;
@@ -68,22 +63,25 @@ class AuthController extends Controller
             $user->email = $request->email;
             $user->otp_code = $otp_code;
             $user->password = $request->password;
-            $user->otp_expired = Carbon::now()->addMinutes(5);
+            $user->otp_expired = Carbon::now()->addMinutes(config('abacus.otp_expired'));
 
             $user->save();
 
-            $this->sendOTP($request->phone, $otp_code);
+            $this->sendOtp($request->phone, $otp_code);
 
-            return response()->json([
-                'user' => new UserResource($user),
-                'message' => 'successfully created! verfiy with OTP to ativate your account'
-            ]);
+            // return response()->json([
+                return ApiHelper::responseWithSuccess(
+                    'successfully created! verfiy with OTP to ativate your account',
+                    ['user' => new UserResource($user)]
+                    );
+
+            // ]);
         } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
-    public function sms_verification(SMSRequest $request)
+    public function smsVerification(SMSRequest $request)
     {
         try {
             $user = User::where('otp_code', $request->otp_code)->first();
@@ -99,7 +97,7 @@ class AuthController extends Controller
                 'user_id' => $user->id,
             ]);
             $user->update([
-                'status' => 1,
+                'status' => true,
             ]);
 
             $now = Carbon::now();
@@ -109,7 +107,10 @@ class AuthController extends Controller
                     'otp_code' => null,
                 ]);
 
-                return response()->json(['token' => $token, 'user' => $user, 'message' => 'successfully activated your account!'], 200);
+                return ApiHelper::responseWithSuccess(
+                    'successfully activated your account!',
+                    ['user' => new UserResource($user)],
+                    $token);
             }
 
             return response()->json(['error' => 'your OTP expired!'], 422);
@@ -118,10 +119,18 @@ class AuthController extends Controller
         }
     }
 
-    public function resendOTP($id)
+    public function resendOtp(Request $request)
     {
         try {
-            $user = User::find($id);
+            $validator = Validator::make($request->all(), [
+                'user_id' => 'required|exists:users,id'
+            ]);
+
+            if($validator->fails()) {
+                return $validator->errors();
+            }
+
+            $user = User::find($request->user_id);
 
             if (!$user) {
                 return response()->json(['error' => 'Not Found'], 404);
@@ -136,19 +145,26 @@ class AuthController extends Controller
                 'otp_expired' => Carbon::now()->addMinutes(5),
             ]);
 
-            $this->sendOTP($user->phone, $user->otp_code);
+            $this->sendOtp($user->phone, $user->otp_code);
 
-            return response()->json(['new_otp' => $user->otp_code . ' is new otp']);
+
+            // return ApiHelper::responseWithSuccess([
+            //     'user' => new UserResource($user),
+            //     'message' => 'successfully created! verfiy with OTP to ativate your account']);
+
+            return ApiHelper::responseWithSuccess(
+                'successfully send new otp',
+                ['otp_code' => $otp_code]);
         } catch (Exception $e) {
-            return ApiHelper::responseWithBadRequest($e->getMessage());
+            return ApiHelper::responseWithUnauthorized($e->getMessage());
         }
     }
 
-    public function signin(SinginRequest $request)
+    public function signIn(SinginRequest $request)
     {
         try {
             if (
-                Auth::attempt(['password' => $request->password, 'phone' => $request->phone, 'status' => 1])
+                Auth::attempt(['password' => $request->password, 'phone' => $request->phone, 'status' => true])
             ) {
 
                 $user = Auth::user();
@@ -158,16 +174,20 @@ class AuthController extends Controller
 
                 $token = $user->createToken($request->password . 'ATUH_TOKEN')->plainTextToken;
 
-                return response()->json(['token' => $token, 'user' => new UserResource($user)], 200);
+                return ApiHelper::responseWithSuccess(
+                    'successfully signin!',
+                    new UserResource($user),
+                    $token);
+
             } else {
-                return response()->json(['message' => 'Invalid sigin! Make sure u logout from the other device'], 401);
+                return ApiHelper::responseWithUnauthorized('Invalid sigin! Make sure u logout from the other device');
             }
         } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
-    public function forgot_password(ForgotPasswordRequest $request)
+    public function forgotPassword(ForgotPasswordRequest $request)
     {
         try {
             $user = User::where('phone', $request->phone)->first();
@@ -178,23 +198,23 @@ class AuthController extends Controller
 
             $user->update([
                 'otp_code' => $otp_code,
-                'otp_expired' => Carbon::now()->addMinutes(5),
+                'otp_expired' => Carbon::now()->addMinutes(config('abacus.otp_expired')),
             ]);
 
-            $this->sendOTP($request->phone, $otp_code);
+            $this->sendOtp($request->phone, $otp_code);
 
-            return response()->json(['use this OTP {' . $user->otp_code . '} to change your password']);
+            return ApiHelper::responseWithSuccess(
+                'use {' . $user->otp_code . '} to change your password',
+                [ 'new_otp_code' => $otp_code]
+            );
         } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
-    public function reset_password(ResetPasswordRequest $request)
+    public function resetPassword(ResetPasswordRequest $request)
     {
         try {
-            if ($request->otp_code == null) {
-                return response()->json(['??' => "nice try!"]);
-            }
 
             $user = User::where('otp_code', $request->otp_code)->first();
 
@@ -205,16 +225,15 @@ class AuthController extends Controller
                     'otp_code' => null,
                     'password' => $request->password,
                 ]);
-                return response()->json(['message' => 'successfully changed your password'], 200);
+                return ApiHelper::responseWithSuccess('successfully changed your password');
             }
-
-            return response()->json(['error' => 'your OTP expired!'], 422);
+            return ApiHelper::responseWithBadRequest(['error' => 'your OTP expired!']);
         } catch (Exception $e) {
             return ApiHelper::responseWithBadRequest($e->getMessage());
         }
     }
 
-    public function signout(Request $request)
+    public function signOut(Request $request)
     {
         $user = $request->user();
 
